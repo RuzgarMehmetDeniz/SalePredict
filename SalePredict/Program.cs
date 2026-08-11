@@ -14,6 +14,8 @@ builder.Services.AddDbContext<SalePredictContext>(options =>
 });
 
 builder.Services.AddScoped<ForecastService>();
+builder.Services.AddScoped<ClassificationService>();
+builder.Services.AddScoped<MonthlyClassificationService>();
 builder.Services.AddScoped<MLContext>();
 
 // Add services to the container.

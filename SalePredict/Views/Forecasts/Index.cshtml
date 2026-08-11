@@ -1,15 +1,69 @@
-﻿
+﻿@model List<SalePredict.Models.ForecastResultDto>
+
 @{
     Layout = null;
+    ViewData["Title"] = "İstanbul Satış Tahmini";
 }
+<div class="container mt-5">
 
-<!DOCTYPE html>
+    <div class="mb-4">
+        <h2>İstanbul Satış Tahmini</h2>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
-</body>
-</html>
+        <p class="text-muted">
+            Geçmiş satış verileri kullanılarak İstanbul için
+            önümüzdeki 7 günlük toplam satış tahmini.
+        </p>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <strong>7 Günlük Tahmin</strong>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Tahmini Satış</th>
+                        <th>Alt Sınır</th>
+                        <th>Üst Sınır</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @item.Date.ToString("dd.MM.yyyy")
+                            </td>
+
+                            <td>
+                                <strong>
+                                    @Math.Round(item.ForecastedSales)
+                                </strong>
+                            </td>
+
+                            <td>
+                                @Math.Round(item.LowerBound)
+                            </td>
+
+                            <td>
+                                @Math.Round(item.UpperBound)
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
