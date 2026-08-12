@@ -5,7 +5,6 @@ using SalePredict.Service;
 namespace SalePredict.Controllers
 {
     public class ClassificationController : Controller
-
     {
         private readonly ClassificationService _classificationService;
 
