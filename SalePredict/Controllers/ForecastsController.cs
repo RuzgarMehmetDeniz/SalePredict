@@ -13,6 +13,7 @@ namespace SalePredict.Controllers
             _forecastService = forecastService;
         }
 
+
         public async Task<IActionResult> Index()
         {
             var dailySales = await _forecastService.GetIstanbulDailySalesAsync();
