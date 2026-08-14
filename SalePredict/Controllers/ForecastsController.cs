@@ -3,6 +3,7 @@ using SalePredict.Models;
 using SalePredict.Service;
 
 namespace SalePredict.Controllers
+
 {
     public class ForecastsController : Controller
     {
