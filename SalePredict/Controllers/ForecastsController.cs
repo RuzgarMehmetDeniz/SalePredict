@@ -5,7 +5,6 @@ using SalePredict.Service;
 namespace SalePredict.Controllers
 {
     public class ForecastsController : Controller
-
     {
         private readonly ForecastService _forecastService;
 
