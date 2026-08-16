@@ -8,6 +8,7 @@ namespace SalePredict.Controllers
     {
         private readonly ForecastService _forecastService;
 
+
         public ForecastsController(ForecastService forecastService)
         {
             _forecastService = forecastService;
