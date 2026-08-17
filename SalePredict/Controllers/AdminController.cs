@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SalePredict.Context;
 using SalePredict.Web.Models.Admin;
 using SalePredict.Web.Models.Shared;
-
 namespace SalePredict.Controllers
 {
     public class AdminController : Controller
@@ -161,7 +160,7 @@ namespace SalePredict.Controllers
 
             var model = new DashboardViewModel
             {
-                TotalSales = new KpiCardViewModel
+                TotalSales = new Web.Models.Shared.KpiCardViewModel
                 {
                     Id = "kpi-total-sales",
                     Label = "Total Sales",
@@ -170,7 +169,7 @@ namespace SalePredict.Controllers
                     Sparkline = sparkline
                 },
 
-                TotalOrders = new KpiCardViewModel
+                TotalOrders = new Web.Models.Shared.KpiCardViewModel
                 {
                     Id = "kpi-total-orders",
                     Label = "Total Orders",
@@ -179,7 +178,7 @@ namespace SalePredict.Controllers
                     Sparkline = Array.Empty<decimal>()
                 },
 
-                AverageOrderValue = new KpiCardViewModel
+                AverageOrderValue = new Web.Models.Shared.KpiCardViewModel
                 {
                     Id = "kpi-average-order",
                     Label = "Average Order Value",
@@ -188,7 +187,7 @@ namespace SalePredict.Controllers
                     Sparkline = Array.Empty<decimal>()
                 },
 
-                TotalProducts = new KpiCardViewModel
+                TotalProducts = new Web.Models.Shared.KpiCardViewModel
                 {
                     Id = "kpi-total-products",
                     Label = "Total Products",
@@ -197,7 +196,7 @@ namespace SalePredict.Controllers
                     Sparkline = Array.Empty<decimal>()
                 },
 
-                ActiveCities = new KpiCardViewModel
+                ActiveCities = new Web.Models.Shared.KpiCardViewModel
                 {
                     Id = "kpi-active-cities",
                     Label = "Active Cities",
@@ -206,7 +205,7 @@ namespace SalePredict.Controllers
                     Sparkline = Array.Empty<decimal>()
                 },
 
-                SalesOverview = new LineAreaChartData
+                SalesOverview = new Web.Models.Shared.LineAreaChartData
                 {
                     Labels = salesOverviewData
                         .Select(x => x.Date.ToString("dd.MM"))
@@ -217,7 +216,7 @@ namespace SalePredict.Controllers
                         .ToList()
                 },
 
-                CategoryPerformance = new CategoryValueChartData
+                CategoryPerformance = new Web.Models.Shared.CategoryValueChartData
                 {
                     Labels = categoryData.Select(x => x.Name).ToList(),
                     Values = categoryData.Select(x => x.Value).ToList()
@@ -233,20 +232,20 @@ namespace SalePredict.Controllers
                             : 0
                     })
                     .ToList(),
-
-                CityPerformance = new CategoryValueChartData
+                
+                CityPerformance = new Web.Models.Shared.CategoryValueChartData
                 {
                     Labels = cityData.Select(x => x.Name).ToList(),
                     Values = cityData.Select(x => x.Value).ToList()
                 },
 
-                PaymentMethods = new CategoryValueChartData
+                PaymentMethods = new Web.Models.Shared.CategoryValueChartData
                 {
                     Labels = paymentData.Select(x => x.Name).ToList(),
                     Values = paymentData.Select(x => x.Value).ToList()
                 },
 
-                CampaignPerformance = new GroupedSeriesChartData
+                CampaignPerformance = new Web.Models.Shared.GroupedSeriesChartData
                 {
                     Labels = new List<string>
                     {

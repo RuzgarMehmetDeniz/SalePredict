@@ -1,64 +1,28 @@
-@model SalePredict.Web.Models.Shared.KpiCardViewModel
+﻿@model SalePredict.Web.Models.Shared.KpiCardViewModel
 
-@{
-    var deltaPercent = Model?.DeltaPercent ?? 0;
-    var deltaClass = deltaPercent > 0 ? "up" : (deltaPercent < 0 ? "down" : "flat");
-    var deltaSign = deltaPercent > 0 ? "+" : "";
-    var sparkColor = deltaPercent >= 0 ? "#16A34A" : "#DC2626";
-}
-
-<div class="kpi-card">
-    <div class="kpi-top">
-        <span class="kpi-label">@Model?.Label</span>
-
-        <span class="kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor"
-                 stroke-width="1.8">
-                <path d="M3 17l5-6 4 3 6-8 3 4" />
+<div class="card kpi-card" id="@Model.Id">
+    <div class="kpi-header">
+        <span class="kpi-label">@Model.Label</span>
+        <div class="kpi-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 17l6-6 4 4 8-8" />
             </svg>
-        </span>
+        </div>
     </div>
-
-    <div class="kpi-value">
-        @Model?.Value
+    <div class="kpi-value">@Model.Value</div>
+    <div class="kpi-delta @(Model.DeltaPercent >= 0 ? "up" : "down")">
+        <span>@(Model.DeltaPercent >= 0 ? "▲" : "▼") @Math.Abs(Model.DeltaPercent).ToString("0.0")%</span>
     </div>
-
-    <div class="kpi-bottom">
-
-        <span class="kpi-delta @deltaClass">
-
-            @if (deltaPercent != 0)
-            {
-                <svg width="11"
-                     height="11"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="3">
-
-                    @if (deltaPercent > 0)
-                    {
-                        <path d="M6 15l6-6 6 6" />
-                    }
-                    else
-                    {
-                        <path d="M6 9l6 6 6-6" />
-                    }
-
-                </svg>
-            }
-
-            @deltaSign@deltaPercent.ToString("0.0")%
-
-        </span>
-
-        @if (Model?.Id != null)
-        {
-            <canvas id="@($"{Model.Id}-spark")"
-                    class="kpi-sparkline">
-            </canvas>
-        }
-
-    </div>
+    @if (Model.Sparkline != null && Model.Sparkline.Any())
+    {
+        <div class="kpi-sparkline">
+            <canvas id="@(Model.Id)-sparkline"></canvas>
+        </div>
+        <script type="application/json" id="@(Model.Id)-sparkline-data">@Html.Raw(Json.Serialize(Model.Sparkline))</script>
+        <script>
+            document.addEventListener("sp:ready", function () {
+                SP.renderSparkline("@(Model.Id)-sparkline", "@(Model.Id)-sparkline-data");
+            });
+        </script>
+    }
 </div>
