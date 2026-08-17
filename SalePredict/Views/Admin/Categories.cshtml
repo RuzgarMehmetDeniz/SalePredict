@@ -1,0 +1,26 @@
+@model SalePredict.Web.Models.Admin.CategoriesViewModel
+@{
+    ViewData["Title"] = "Categories";
+    ViewData["Subtitle"] = "Kategori bazlı satış dağılımı";
+    ViewData["Active"] = "Categories";
+    Layout = "_AdminLayout";
+}
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+    @if (Model.Rows.Any())
+    {
+        @foreach (var c in Model.Rows)
+        {
+            <div class="card">
+                <div class="card-title">@c.CategoryName</div>
+                <div class="kpi-value" style="font-size:22px;margin-top:8px;">@c.TotalSales.ToString("₺#,##0")</div>
+                <div class="card-desc" style="margin-top:6px;">@c.ProductCount ürün · toplam satışın %@c.SharePercent.ToString("0.0")'i</div>
+                <div class="progress-track" style="margin-top:10px;"><div class="progress-fill" style="width:@(c.SharePercent)%"></div></div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card"><div class="empty-state"><div class="glyph">—</div>Kategori verisi bulunamadı.</div></div>
+    }
+</div>

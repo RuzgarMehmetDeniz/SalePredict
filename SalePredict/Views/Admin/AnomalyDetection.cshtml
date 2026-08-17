@@ -1,0 +1,72 @@
+@model SalePredict.Web.Models.Admin.AnomalyDetectionViewModel
+@{
+    ViewData["Title"] = "Anomaly Detection";
+    ViewData["Subtitle"] = "Sales Anomaly Detection";
+    ViewData["Active"] = "AnomalyDetection";
+    Layout = "_AdminLayout";
+}
+
+<div class="grid grid-kpi">
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Total Days</span></div><div class="kpi-value">@Model.TotalDays</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Normal Days</span></div><div class="kpi-value" style="color:#16A34A">@Model.NormalDays</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Anomaly Days</span></div><div class="kpi-value" style="color:#DC2626">@Model.AnomalyDays</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Anomaly Rate</span></div><div class="kpi-value">%@Model.AnomalyRatePercent.ToString("0.0")</div></div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Daily Sales + Anomaly Points</div>
+            <div class="card-desc">Kırmızı noktalar beklenen davranıştan sapan günleri gösterir</div>
+        </div>
+        <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:#4F6BFF"></span>Actual</span>
+            <span class="item"><span class="dot" style="background:#DC2626"></span>Anomaly</span>
+        </div>
+    </div>
+    <div class="chart-box h-360">
+        <canvas id="anomaly-chart"></canvas>
+    </div>
+</div>
+<script type="application/json" id="anomaly-chart-data">@Html.Raw(Json.Serialize(Model.DailySalesChart))</script>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Anomaly Kayıtları</div></div></div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Date</th><th>City</th><th>Actual Sales</th><th>Expected Sales</th><th>Anomaly Score</th><th>Status</th></tr></thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr style="@(r.IsAnomaly ? "background:rgba(220,38,38,0.03);" : "")">
+                            <td>@r.Date.ToString("dd MMM yyyy")</td>
+                            <td>@r.City</td>
+                            <td class="numeric">@r.ActualSales.ToString("₺#,##0")</td>
+                            <td class="numeric">@r.ExpectedSales.ToString("₺#,##0")</td>
+                            <td class="numeric">@r.AnomalyScore.ToString("0.00")</td>
+                            <td><span class="badge @(r.IsAnomaly ? "badge-danger" : "badge-success")">@(r.IsAnomaly ? "ANOMALY" : "NORMAL")</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderAnomalyChart("anomaly-chart", "anomaly-chart-data");
+        });
+    </script>
+}

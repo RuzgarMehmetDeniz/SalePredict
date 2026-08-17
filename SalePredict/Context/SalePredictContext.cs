@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SalePredict.Entities.SalePredict.Entities;
+using SalePredict.Entities;
 
 namespace SalePredict.Context
 {

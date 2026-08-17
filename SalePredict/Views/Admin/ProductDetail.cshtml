@@ -1,0 +1,34 @@
+@model SalePredict.Web.Models.Admin.ProductDetailViewModel
+@{
+    ViewData["Title"] = Model.Product.ProductName;
+    ViewData["Subtitle"] = Model.Product.Category;
+    ViewData["Active"] = "Products";
+    Layout = "_AdminLayout";
+}
+
+<a asp-controller="Admin" asp-action="Products" class="btn btn-ghost btn-sm" style="margin-bottom:14px;">← Products listesine dön</a>
+
+<div class="grid grid-kpi">
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Total Sales</span></div><div class="kpi-value">@Model.Product.TotalSales.ToString("₺#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Total Quantity</span></div><div class="kpi-value">@Model.Product.TotalQuantity.ToString("#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Average Price</span></div><div class="kpi-value">@Model.Product.AveragePrice.ToString("₺#,##0.00")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Performance</span></div><div class="kpi-value">@Model.Product.Performance</div></div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Satış Trendi & ML.NET Tahmini</div></div></div>
+    <div class="chart-box h-320"><canvas id="product-trend-chart"></canvas></div>
+    @if (!string.IsNullOrEmpty(Model.ForecastNote))
+    {
+        <div class="card-desc" style="margin-top:12px;">@Model.ForecastNote</div>
+    }
+</div>
+<script type="application/json" id="product-trend-data">@Html.Raw(Json.Serialize(Model.SalesTrend))</script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderLineArea("product-trend-chart", "product-trend-data", { actualLabel: "Sales", forecastLabel: "Forecast" });
+        });
+    </script>
+}

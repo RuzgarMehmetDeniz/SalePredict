@@ -1,0 +1,56 @@
+@model SalePredict.Web.Models.Admin.ReportsViewModel
+@{
+    ViewData["Title"] = "Reports";
+    ViewData["Subtitle"] = "Rapor oluştur ve dışa aktar";
+    ViewData["Active"] = "Reports";
+    Layout = "_AdminLayout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div><div class="card-title">Rapor Filtreleri</div></div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+                Excel
+            </button>
+            <button class="btn btn-secondary btn-sm" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+                PDF
+            </button>
+            <button class="btn btn-secondary btn-sm" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+                CSV
+            </button>
+        </div>
+    </div>
+    @await Html.PartialAsync("_FilterPanel", Model.Filters)
+</div>
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-top:18px;">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="card">
+            <div class="card-desc">@card.Title</div>
+            <div class="kpi-value" style="margin-top:6px;">@card.Value</div>
+            @if (!string.IsNullOrEmpty(card.Description))
+            {
+                <div class="card-desc" style="margin-top:6px;">@card.Description</div>
+            }
+        </div>
+    }
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Dönemsel Trend</div></div></div>
+    <div class="chart-box h-320"><canvas id="reports-trend-chart"></canvas></div>
+</div>
+<script type="application/json" id="reports-trend-data">@Html.Raw(Json.Serialize(Model.TrendChart))</script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderLineArea("reports-trend-chart", "reports-trend-data", { actualLabel: "Sales" });
+        });
+    </script>
+}

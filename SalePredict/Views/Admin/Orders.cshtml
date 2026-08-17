@@ -1,0 +1,43 @@
+@model SalePredict.Web.Models.Admin.OrdersViewModel
+@{
+    ViewData["Title"] = "Orders";
+    ViewData["Subtitle"] = "Sipariş kayıtları";
+    ViewData["Active"] = "Orders";
+    Layout = "_AdminLayout";
+}
+
+@await Html.PartialAsync("_FilterPanel", Model.Filters)
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Sipariş Listesi</div></div></div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Order #</th><th>Date</th><th>City</th><th>Total</th><th>Payment Method</th><th>Status</th></tr></thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var o in Model.Rows)
+                    {
+                        var badgeClass = o.Status switch { "Completed" => "badge-success", "Pending" => "badge-warning", "Cancelled" => "badge-danger", _ => "badge-neutral" };
+                        <tr>
+                            <td class="font-mono">@o.OrderNumber</td>
+                            <td>@o.OrderDate.ToString("dd MMM yyyy")</td>
+                            <td>@o.City</td>
+                            <td class="numeric">@o.Total.ToString("₺#,##0")</td>
+                            <td>@o.PaymentMethod</td>
+                            <td><span class="badge @badgeClass">@o.Status</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>

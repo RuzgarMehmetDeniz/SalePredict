@@ -1,0 +1,52 @@
+@model SalePredict.Web.Models.Admin.ClusteringViewModel
+@{
+    ViewData["Title"] = "Clustering";
+    ViewData["Subtitle"] = "City Sales Clustering";
+    ViewData["Active"] = "Clustering";
+    Layout = "_AdminLayout";
+}
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+    @foreach (var c in Model.Clusters)
+    {
+        <div class="card" style="border-top:3px solid @c.ColorHex;">
+            <div class="card-desc" style="margin-bottom:6px;">Cluster @c.ClusterId</div>
+            <div class="card-title" style="margin-bottom:10px;">@c.Label</div>
+            <div class="kpi-value" style="font-size:22px;">@c.CityCount <span style="font-size:12px;color:var(--color-text-muted);font-family:var(--font-body);font-weight:500;">şehir</span></div>
+            <div class="card-desc" style="margin-top:6px;">Ortalama satış: <span class="font-mono">@c.AverageSales.ToString("₺#,##0")</span></div>
+        </div>
+    }
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Şehir Kümeleme Tablosu</div>
+            <div class="card-desc">30 şehir — ortalama satış, sepet değeri ve kampanya oranına göre kümelenmiştir</div>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>City</th><th>Average Sales</th><th>Average Basket</th><th>Campaign Rate</th><th>Cluster</th></tr></thead>
+            <tbody>
+                @if (Model.Cities.Any())
+                {
+                    @foreach (var c in Model.Cities)
+                    {
+                        <tr>
+                            <td>@c.City</td>
+                            <td class="numeric">@c.AverageSales.ToString("₺#,##0")</td>
+                            <td class="numeric">@c.AverageBasketValue.ToString("₺#,##0")</td>
+                            <td class="numeric">%@c.CampaignRatePercent.ToString("0.0")</td>
+                            <td><span class="badge badge-info">@c.ClusterLabel</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5"><div class="empty-state"><div class="glyph">—</div>Kümeleme sonucu bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

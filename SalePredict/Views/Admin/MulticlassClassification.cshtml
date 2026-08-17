@@ -1,0 +1,73 @@
+@model SalePredict.Web.Models.Admin.MulticlassClassificationViewModel
+@{
+    ViewData["Title"] = "Multiclass Classification";
+    ViewData["Subtitle"] = "Product Performance Classification";
+    ViewData["Active"] = "MulticlassClassification";
+    Layout = "_AdminLayout";
+}
+
+<div class="grid grid-kpi">
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Total Products</span></div><div class="kpi-value">@Model.TotalProducts</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Low</span></div><div class="kpi-value" style="color:#DC2626">@Model.LowCount</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Medium</span></div><div class="kpi-value" style="color:#D97706">@Model.MediumCount</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">High</span></div><div class="kpi-value" style="color:#16A34A">@Model.HighCount</div></div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Performance Distribution</div>
+            <div class="card-desc">Gelecek ay performans sınıfı dağılımı</div>
+        </div>
+    </div>
+    <div class="chart-box h-280">
+        <canvas id="multiclass-distribution-chart"></canvas>
+    </div>
+</div>
+<script type="application/json" id="multiclass-distribution-data">@Html.Raw(Json.Serialize(Model.DistributionChart))</script>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Ürün Sınıflandırma Tablosu</div>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Product</th><th>Category</th><th>Recent Sales</th><th>Average Sales</th><th>Predicted Class</th><th>Probability</th></tr></thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var r in Model.Rows)
+                    {
+                        var badgeClass = r.PredictedClass switch { "High" => "badge-success", "Medium" => "badge-warning", _ => "badge-danger" };
+                        <tr>
+                            <td>@r.ProductName</td>
+                            <td>@r.Category</td>
+                            <td class="numeric">@r.RecentSales.ToString("#,##0")</td>
+                            <td class="numeric">@r.AverageSales.ToString("#,##0")</td>
+                            <td><span class="badge @badgeClass">@r.PredictedClass</span></td>
+                            <td class="numeric">%@r.ProbabilityPercent.ToString("0.0")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderDonut("multiclass-distribution-chart", "multiclass-distribution-data", ["#DC2626", "#D97706", "#16A34A"]);
+        });
+    </script>
+}

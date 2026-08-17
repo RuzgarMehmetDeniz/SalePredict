@@ -1,4 +1,4 @@
-﻿namespace SalePredict.Models
+﻿namespace SalePredict.Dtos.ForecastDtos
 {
     public class ForecastResultDto
     {

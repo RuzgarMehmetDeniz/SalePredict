@@ -1,0 +1,132 @@
+@model SalePredict.Web.Models.Admin.ForecastingViewModel
+@{
+    ViewData["Title"] = "Forecasting";
+    ViewData["Subtitle"] = "ML.NET SSA ile şehir bazlı satış tahmini";
+    ViewData["Active"] = "Forecasting";
+    Layout = "_AdminLayout";
+}
+
+<!-- ===================== FORECAST CONTROLS ===================== -->
+<form class="card filter-panel" method="get" asp-controller="Admin" asp-action="Forecasting">
+    <div class="field">
+        <label for="city">City</label>
+        <select id="city" name="city">
+            @foreach (var c in Model.Cities)
+            {
+                <option value="@c.Value" selected="@(c.Value == Model.SelectedCity)">@c.Text</option>
+            }
+        </select>
+    </div>
+    <div class="field">
+        <label for="rangeStart">Date Range (Start)</label>
+        <input type="date" id="rangeStart" name="rangeStart" value="@Model.RangeStart?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="field">
+        <label for="rangeEnd">Date Range (End)</label>
+        <input type="date" id="rangeEnd" name="rangeEnd" value="@Model.RangeEnd?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="field">
+        <label for="horizon">Forecast Horizon (gün)</label>
+        <input type="number" id="horizon" name="horizon" min="1" max="30" value="@Model.ForecastHorizon" />
+    </div>
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Generate Forecast</button>
+    </div>
+</form>
+
+<!-- ===================== FORECAST SUMMARY ===================== -->
+<div class="section-title">Forecast Summary</div>
+<div class="grid grid-kpi">
+    <div class="kpi-card">
+        <div class="kpi-top"><span class="kpi-label">Next 7 Days Forecast</span></div>
+        <div class="kpi-value">@Model.NextSevenDaysTotal.ToString("₺#,##0")</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-top"><span class="kpi-label">Expected Total Sales</span></div>
+        <div class="kpi-value">@Model.ExpectedTotalSales.ToString("₺#,##0")</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-top"><span class="kpi-label">Average Daily Forecast</span></div>
+        <div class="kpi-value">@Model.AverageDailyForecast.ToString("₺#,##0")</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-top"><span class="kpi-label">Confidence Level</span></div>
+        <div class="kpi-value">%@Model.ConfidenceLevelPercent.ToString("0.0")</div>
+    </div>
+</div>
+
+<!-- ===================== CHART ===================== -->
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Last 30 Days Actual Sales + Next 7 Days Forecast</div>
+            <div class="card-desc">@(Model.SelectedCity ?? "Tüm şehirler") için gerçekleşen ve tahmin edilen satış</div>
+        </div>
+        <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:#4F6BFF"></span>Actual</span>
+            <span class="item"><span class="dot" style="background:#D97706"></span>Forecast</span>
+        </div>
+    </div>
+    <div class="chart-box h-360">
+        <canvas id="forecast-chart"></canvas>
+    </div>
+</div>
+<script type="application/json" id="forecast-chart-data">@Html.Raw(Json.Serialize(Model.ActualVsForecastChart))</script>
+
+<!-- ===================== FORECAST TABLE ===================== -->
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Forecast Detail</div>
+            <div class="card-desc">Günlük tahmin ve güven aralığı</div>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Date</th><th>Forecast</th><th>Lower Bound</th><th>Upper Bound</th></tr></thead>
+            <tbody>
+                @if (Model.ForecastTable.Any())
+                {
+                    @foreach (var row in Model.ForecastTable)
+                    {
+                        <tr>
+                            <td>@row.Date.ToString("dd MMM yyyy")</td>
+                            <td class="numeric">@row.Forecast.ToString("₺#,##0")</td>
+                            <td class="numeric">@row.LowerBound.ToString("₺#,##0")</td>
+                            <td class="numeric">@row.UpperBound.ToString("₺#,##0")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4"><div class="empty-state"><div class="glyph">—</div>Tahmin üretmek için filtreleri kullanın.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===================== SSA PARAMETERS ===================== -->
+<div class="section-title">ML.NET SSA Parameters</div>
+<div class="grid grid-4">
+    <div class="param-card"><div><div class="k">Window Size</div><div class="v">@Model.SsaParameters.WindowSize</div></div></div>
+    <div class="param-card"><div><div class="k">Series Length</div><div class="v">@Model.SsaParameters.SeriesLength</div></div></div>
+    <div class="param-card"><div><div class="k">Train Size</div><div class="v">@Model.SsaParameters.TrainSize</div></div></div>
+    <div class="param-card"><div><div class="k">Horizon</div><div class="v">@Model.SsaParameters.Horizon gün</div></div></div>
+</div>
+<div class="card" style="margin-top:14px;">
+    <div class="card-desc" style="line-height:1.7;">
+        <strong>Window Size:</strong> SSA'nın periyodik yapıyı yakalamak için baktığı geçmiş pencere uzunluğu.
+        <strong>Series Length:</strong> Modelin eğitildiği toplam gözlem sayısı (mevsimselliği yakalamak için 365'e çıkarılması önerilir).
+        <strong>Train Size:</strong> Eğitim setine ayrılan gözlem sayısı.
+        <strong>Confidence Level:</strong> Alt/üst güven sınırlarının hesaplandığı istatistiksel güven düzeyi (%@Model.SsaParameters.ConfidenceLevel.ToString("0")).
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderLineArea("forecast-chart", "forecast-chart-data", { actualLabel: "Actual", forecastLabel: "Forecast" });
+        });
+    </script>
+}

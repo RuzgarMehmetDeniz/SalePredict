@@ -1,0 +1,44 @@
+@model SalePredict.Web.Models.Admin.CitiesViewModel
+@{
+    ViewData["Title"] = "Cities";
+    ViewData["Subtitle"] = "Şehir bazlı satış performansı";
+    ViewData["Active"] = "Cities";
+    Layout = "_AdminLayout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div><div class="card-title">Şehir Listesi</div></div>
+        <button class="btn btn-secondary btn-sm" type="button">Export</button>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Country</th><th>City</th><th>Total Sales</th><th>Orders</th><th>Average Basket</th><th>Campaign Rate</th><th>Cluster</th></tr></thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var c in Model.Rows)
+                    {
+                        <tr>
+                            <td>@c.Country</td>
+                            <td>@c.City</td>
+                            <td class="numeric">@c.TotalSales.ToString("₺#,##0")</td>
+                            <td class="numeric">@c.Orders.ToString("#,##0")</td>
+                            <td class="numeric">@c.AverageBasket.ToString("₺#,##0")</td>
+                            <td class="numeric">%@c.CampaignRatePercent.ToString("0.0")</td>
+                            <td><span class="badge badge-info">@c.ClusterLabel</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>

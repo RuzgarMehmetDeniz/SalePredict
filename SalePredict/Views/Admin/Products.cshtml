@@ -1,0 +1,47 @@
+@model SalePredict.Web.Models.Admin.ProductsViewModel
+@{
+    ViewData["Title"] = "Products";
+    ViewData["Subtitle"] = "Ürün yönetimi ve satış performansı";
+    ViewData["Active"] = "Products";
+    Layout = "_AdminLayout";
+}
+
+@await Html.PartialAsync("_FilterPanel", Model.Filters)
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div><div class="card-title">Ürün Listesi</div></div>
+        <button class="btn btn-secondary btn-sm" type="button">Export</button>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>Product</th><th>Category</th><th>Total Quantity</th><th>Total Sales</th><th>Average Price</th><th>Campaign Sales</th><th>Performance</th></tr></thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var p in Model.Rows)
+                    {
+                        var badgeClass = p.Performance switch { "High" => "badge-success", "Medium" => "badge-warning", _ => "badge-danger" };
+                        <tr>
+                            <td><a asp-controller="Admin" asp-action="ProductDetail" asp-route-id="@p.ProductId" style="color:var(--color-primary);font-weight:600;">@p.ProductName</a></td>
+                            <td>@p.Category</td>
+                            <td class="numeric">@p.TotalQuantity.ToString("#,##0")</td>
+                            <td class="numeric">@p.TotalSales.ToString("₺#,##0")</td>
+                            <td class="numeric">@p.AveragePrice.ToString("₺#,##0.00")</td>
+                            <td class="numeric">@p.CampaignSales.ToString("₺#,##0")</td>
+                            <td><span class="badge @badgeClass">@p.Performance</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>

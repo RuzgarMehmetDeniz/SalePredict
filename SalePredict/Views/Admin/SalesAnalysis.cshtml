@@ -1,0 +1,38 @@
+@model SalePredict.Web.Models.Admin.SalesAnalysisViewModel
+@{
+    ViewData["Title"] = "Sales Analysis";
+    ViewData["Subtitle"] = "Detaylı satış analizi ve filtreleme";
+    ViewData["Active"] = "SalesAnalysis";
+    Layout = "_AdminLayout";
+}
+
+@await Html.PartialAsync("_FilterPanel", Model.Filters)
+
+<div class="grid grid-kpi" style="margin-top:18px;">
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Total Sales</span></div><div class="kpi-value">@Model.TotalSales.ToString("₺#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Quantity</span></div><div class="kpi-value">@Model.TotalQuantity.ToString("#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Orders</span></div><div class="kpi-value">@Model.TotalOrders.ToString("#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Average Order Value</span></div><div class="kpi-value">@Model.AverageOrderValue.ToString("₺#,##0")</div></div>
+    <div class="kpi-card"><div class="kpi-top"><span class="kpi-label">Discount Rate</span></div><div class="kpi-value">%@Model.DiscountRatePercent.ToString("0.0")</div></div>
+</div>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Satış Trendi</div><div class="card-desc">Filtrelenen kritere göre günlük satış</div></div></div>
+    <div class="chart-box h-320"><canvas id="sales-analysis-trend-chart"></canvas></div>
+</div>
+<script type="application/json" id="sales-analysis-trend-data">@Html.Raw(Json.Serialize(Model.SalesTrend))</script>
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">Kategori Kırılımı</div><div class="card-desc">Kampanyalı / kampanyasız satış karşılaştırması, kategori bazında</div></div></div>
+    <div class="chart-box h-320"><canvas id="sales-analysis-category-chart"></canvas></div>
+</div>
+<script type="application/json" id="sales-analysis-category-data">@Html.Raw(Json.Serialize(Model.CategoryBreakdown))</script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderLineArea("sales-analysis-trend-chart", "sales-analysis-trend-data", { actualLabel: "Sales" });
+            SP.renderGroupedBar("sales-analysis-category-chart", "sales-analysis-category-data");
+        });
+    </script>
+}

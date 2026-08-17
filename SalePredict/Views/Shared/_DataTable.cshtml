@@ -1,0 +1,62 @@
+@model SalePredict.Web.Models.Shared.DataTableViewModel
+@*
+    Genel amaçlı, kolon tanımı Controller'dan gelen tablo partial'ı.
+    Model.Columns: [{ Header, Field, Numeric }]
+    Model.Rows: List<Dictionary<string,object>>  (Controller'da ViewModel projeksiyonundan doldurulur)
+    Badge/özel hücreler için sayfa-özel tablo şablonu kullanılması önerilir (bkz. BinaryClassification, AnomalyDetection).
+*@
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">@Model.Title</div>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="card-desc">@Model.Description</div>
+            }
+        </div>
+        @if (Model.ShowExport)
+        {
+            <button class="btn btn-secondary btn-sm" type="button">Export</button>
+        }
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    @foreach (var col in Model.Columns)
+                    {
+                        <th>@col.Header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var col in Model.Columns)
+                            {
+                                <td class="@(col.Numeric ? "numeric" : "")">@row[col.Field]</td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="@Model.Columns.Count">
+                        <div class="empty-state">
+                            <div class="glyph">—</div>
+                            Gösterilecek kayıt bulunamadı.
+                        </div>
+                    </td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>

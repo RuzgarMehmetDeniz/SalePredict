@@ -1,69 +1,84 @@
-﻿@model List<SalePredict.Models.ForecastResultDto>
+﻿@using System.Text.Json
 
+@model List<ForecastResultDto>
 @{
     Layout = null;
-    ViewData["Title"] = "İstanbul Satış Tahmini";
 }
-<div class="container mt-5">
+<h2>İstanbul - 7 Günlük Satış Tahmini</h2>
 
-    <div class="mb-4">
-        <h2>İstanbul Satış Tahmini</h2>
+<canvas id="forecastChart" width="900" height="400"></canvas>
 
-        <p class="text-muted">
-            Geçmiş satış verileri kullanılarak İstanbul için
-            önümüzdeki 7 günlük toplam satış tahmini.
-        </p>
-    </div>
+<table class="table table-sm mt-4">
+    <thead>
+        <tr>
+            <th>Tarih</th>
+            <th>Tahmini Satış</th>
+            <th>Alt Güven Sınırı</th>
+            <th>Üst Güven Sınırı</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var f in Model)
+        {
+            <tr>
+                <td>@f.Date.ToString("dd.MM.yyyy")</td>
+                <td>@f.ForecastedSales.ToString("N0")</td>
+                <td>@f.LowerBound.ToString("N0")</td>
+                <td>@f.UpperBound.ToString("N0")</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <strong>7 Günlük Tahmin</strong>
-        </div>
+@{
+    var labels = Model.Select(f => f.Date.ToString("dd.MM")).ToList();
+    var forecastData = Model.Select(f => (object)f.ForecastedSales).ToList();
+    var lowerData = Model.Select(f => (object)f.LowerBound).ToList();
+    var upperData = Model.Select(f => (object)f.UpperBound).ToList();
+}
 
-        <div class="card-body">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    const labels = @Html.Raw(JsonSerializer.Serialize(labels));
+    const forecastData = @Html.Raw(JsonSerializer.Serialize(forecastData));
+    const lowerData = @Html.Raw(JsonSerializer.Serialize(lowerData));
+    const upperData = @Html.Raw(JsonSerializer.Serialize(upperData));
 
-            <table class="table table-bordered table-striped">
-
-                <thead>
-                    <tr>
-                        <th>Tarih</th>
-                        <th>Tahmini Satış</th>
-                        <th>Alt Sınır</th>
-                        <th>Üst Sınır</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>
-                                @item.Date.ToString("dd.MM.yyyy")
-                            </td>
-
-                            <td>
-                                <strong>
-                                    @Math.Round(item.ForecastedSales)
-                                </strong>
-                            </td>
-
-                            <td>
-                                @Math.Round(item.LowerBound)
-                            </td>
-
-                            <td>
-                                @Math.Round(item.UpperBound)
-                            </td>
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-    </div>
-
-</div>
-
+    new Chart(document.getElementById('forecastChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Tahmini Satış',
+                    data: forecastData,
+                    borderColor: 'rgb(37, 99, 235)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: false,
+                    tension: 0.2
+                },
+                {
+                    label: 'Üst Sınır',
+                    data: upperData,
+                    borderColor: 'rgba(220, 38, 38, 0.5)',
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'Alt Sınır',
+                    data: lowerData,
+                    borderColor: 'rgba(220, 38, 38, 0.5)',
+                    borderDash: [5, 5],
+                    fill: '-1',
+                    backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+</script>

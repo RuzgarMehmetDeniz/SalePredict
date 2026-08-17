@@ -1,0 +1,100 @@
+@model SalePredict.Web.Models.Admin.BinaryClassificationViewModel
+@{
+    ViewData["Title"] = "Binary Classification";
+    ViewData["Subtitle"] = "Product Sales Prediction";
+    ViewData["Active"] = "BinaryClassification";
+    Layout = "_AdminLayout";
+}
+
+<form class="card filter-panel" method="get" asp-controller="Admin" asp-action="BinaryClassification">
+    <div class="field">
+        <label for="city">City</label>
+        <select id="city" name="city">
+            @foreach (var c in Model.Cities) { <option value="@c.Value" selected="@(c.Value == Model.SelectedCity)">@c.Text</option> }
+        </select>
+    </div>
+    <div class="field">
+        <label for="product">Product</label>
+        <select id="product" name="product">
+            @foreach (var p in Model.Products) { <option value="@p.Value" selected="@(p.Value == Model.SelectedProduct)">@p.Text</option> }
+        </select>
+    </div>
+    <div class="field">
+        <label for="targetMonth">Target Month</label>
+        <input type="month" id="targetMonth" name="targetMonth" value="@Model.TargetMonth" />
+    </div>
+    <div class="field">
+        <label for="threshold">Sales Threshold (units)</label>
+        <input type="number" id="threshold" name="threshold" value="@Model.SalesThreshold" step="100" />
+    </div>
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Predict</button>
+    </div>
+</form>
+
+@if (Model.PredictionResult.HasValue)
+{
+    <div class="grid grid-2" style="margin-top:18px;">
+        <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="card-title">Prediction</div>
+            <span class="result-flag @(Model.PredictionResult.Value ? "yes" : "no")">
+                @(Model.PredictionResult.Value ? "YES — Threshold Aşılacak" : "NO — Threshold Aşılmayacak")
+            </span>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="card-title">Probability</div>
+            <div class="kpi-value" style="font-size:30px;">%@Model.ProbabilityPercent?.ToString("0.0")</div>
+            <div class="progress-track"><div class="progress-fill" style="width:@(Model.ProbabilityPercent)%; background:@(Model.PredictionResult.Value ? "#16A34A" : "#DC2626")"></div></div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card" style="margin-top:18px;">
+        <div class="empty-state"><div class="glyph">—</div>Tahmin görmek için yukarıdan filtreleri seçip <strong>Predict</strong>'e tıklayın.</div>
+    </div>
+}
+
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Ürün Bazlı Tahmin Tablosu</div>
+            <div class="card-desc">Seçilen şehir/ay için tüm ürünlerin eşik tahmini</div>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th><th>Last 3 Months Sales</th><th>Last Month Sales</th>
+                    <th>3 Month Avg</th><th>Target Month</th><th>Prediction</th><th>Probability</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td>@r.ProductName</td>
+                            <td class="numeric">@r.Last3MonthsSales.ToString("#,##0")</td>
+                            <td class="numeric">@r.LastMonthSales.ToString("#,##0")</td>
+                            <td class="numeric">@r.ThreeMonthAverage.ToString("#,##0")</td>
+                            <td>@r.TargetMonth</td>
+                            <td><span class="badge @(r.Prediction ? "badge-success" : "badge-danger")">@(r.Prediction ? "YES" : "NO")</span></td>
+                            <td class="numeric">%@r.ProbabilityPercent.ToString("0.0")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7"><div class="empty-state"><div class="glyph">—</div>Kayıt bulunamadı.</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination != null)
+    {
+        @await Html.PartialAsync("_Pagination", Model.Pagination)
+    }
+</div>

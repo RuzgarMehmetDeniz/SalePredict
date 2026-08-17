@@ -1,0 +1,133 @@
+@model SalePredict.Web.Models.Admin.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Subtitle"] = "Genel satış performansına tek bakış";
+    ViewData["Active"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<!-- ===================== KPI ROW ===================== -->
+<div class="grid grid-kpi">
+    @await Html.PartialAsync("_KpiCard", Model.TotalSales)
+    @await Html.PartialAsync("_KpiCard", Model.TotalOrders)
+    @await Html.PartialAsync("_KpiCard", Model.AverageOrderValue)
+    @await Html.PartialAsync("_KpiCard", Model.TotalProducts)
+    @await Html.PartialAsync("_KpiCard", Model.ActiveCities)
+</div>
+
+<!-- ===================== SALES OVERVIEW ===================== -->
+<div class="section-title">Sales Overview</div>
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Satış Trendi</div>
+            <div class="card-desc">Seçili dönemdeki günlük ciro hareketi</div>
+        </div>
+        <div class="chart-legend">
+            <span class="item"><span class="dot" style="background:#4F6BFF"></span>Sales</span>
+        </div>
+    </div>
+    <div class="chart-box h-320">
+        <canvas id="sales-overview-chart"></canvas>
+    </div>
+</div>
+<script type="application/json" id="sales-overview-data">@Html.Raw(Json.Serialize(Model.SalesOverview))</script>
+
+<!-- ===================== CATEGORY / TOP PRODUCTS ===================== -->
+<div class="grid grid-2" style="margin-top:18px;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Category Performance</div>
+                <div class="card-desc">Kategori bazlı toplam satış</div>
+            </div>
+        </div>
+        <div class="chart-box h-280">
+            <canvas id="category-performance-chart"></canvas>
+        </div>
+    </div>
+    <script type="application/json" id="category-performance-data">@Html.Raw(Json.Serialize(Model.CategoryPerformance))</script>
+
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Top Products</div>
+                <div class="card-desc">En çok satan ürünler</div>
+            </div>
+        </div>
+        @if (Model.TopProducts.Any())
+        {
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                @foreach (var p in Model.TopProducts)
+                {
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                            <span>@p.ProductName</span>
+                            <span class="font-mono">@p.TotalSales.ToString("₺#,##0")</span>
+                        </div>
+                        <div class="progress-track"><div class="progress-fill" style="width:@(p.SharePercent)%"></div></div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><div class="glyph">—</div>Ürün verisi bulunamadı.</div>
+        }
+    </div>
+</div>
+
+<!-- ===================== CITY / PAYMENT ===================== -->
+<div class="grid grid-2" style="margin-top:18px;">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">City Performance</div>
+                <div class="card-desc">Şehir bazlı satış performansı</div>
+            </div>
+        </div>
+        <div class="chart-box h-280">
+            <canvas id="city-performance-chart"></canvas>
+        </div>
+    </div>
+    <script type="application/json" id="city-performance-data">@Html.Raw(Json.Serialize(Model.CityPerformance))</script>
+
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Payment Methods</div>
+                <div class="card-desc">Ödeme yöntemi dağılımı</div>
+            </div>
+        </div>
+        <div class="chart-box h-280">
+            <canvas id="payment-methods-chart"></canvas>
+        </div>
+    </div>
+    <script type="application/json" id="payment-methods-data">@Html.Raw(Json.Serialize(Model.PaymentMethods))</script>
+</div>
+
+<!-- ===================== CAMPAIGN PERFORMANCE ===================== -->
+<div class="card" style="margin-top:18px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Campaign Performance</div>
+            <div class="card-desc">Kampanyalı ve kampanyasız satışların karşılaştırması</div>
+        </div>
+    </div>
+    <div class="chart-box h-280">
+        <canvas id="campaign-performance-chart"></canvas>
+    </div>
+</div>
+<script type="application/json" id="campaign-performance-data">@Html.Raw(Json.Serialize(Model.CampaignPerformance))</script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("sp:ready", function () {
+            SP.renderLineArea("sales-overview-chart", "sales-overview-data", { actualLabel: "Sales" });
+            SP.renderBar("category-performance-chart", "category-performance-data", SP.palette.info);
+            SP.renderHorizontalBar("city-performance-chart", "city-performance-data", SP.palette.primary);
+            SP.renderDonut("payment-methods-chart", "payment-methods-data");
+            SP.renderGroupedBar("campaign-performance-chart", "campaign-performance-data");
+        });
+    </script>
+}

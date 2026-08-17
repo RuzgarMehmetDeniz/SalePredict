@@ -1,0 +1,59 @@
+﻿@using SalePredict.Dtos.ClassificationDtos
+@model BinaryClassificationResultDto
+
+<h2>Binary Classification - Satış Eşiği Tahmini</h2>
+
+<form method="get" class="form-inline mb-4">
+    <label class="me-2">Şehir:</label>
+    <select name="city" class="form-select me-2" style="width:auto;display:inline-block;">
+        <option value="">-- Şehir Seçin --</option>
+        @foreach (var city in (List<string>)ViewBag.Cities)
+        {
+            if (city == ViewBag.SelectedCity)
+            {
+                <option value="@city" selected>@city</option>
+            }
+            else
+            {
+                <option value="@city">@city</option>
+            }
+        }
+    </select>
+
+    <label class="me-2">Eşik (adet):</label>
+    <input type="number" name="threshold" value="@ViewBag.Threshold" class="form-control me-2" style="width:120px;display:inline-block;" />
+
+    <button type="submit" class="btn btn-primary">Eğit ve Tahmin Et</button>
+</form>
+
+@if (Model != null)
+{
+    <div class="alert alert-info">
+        <strong>Model Metrikleri (Test Set):</strong><br />
+        Accuracy: @Model.Accuracy.ToString("P2") |
+        Precision: @Model.Precision.ToString("P2") |
+        Recall: @Model.Recall.ToString("P2") |
+        F1 Score: @Model.F1Score.ToString("P2") |
+        AUC: @Model.AUC.ToString("P2")
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Eşiği Geçecek mi?</th>
+                <th>Olasılık</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.Predictions.OrderByDescending(x => x.Probability))
+            {
+                <tr>
+                    <td>@p.ProductName</td>
+                    <td>@(p.PredictedLabel ? "EVET" : "HAYIR")</td>
+                    <td>@p.Probability.ToString("P1")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
