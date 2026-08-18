@@ -48,6 +48,7 @@
         public string Text { get; set; } = default!;
     }
 
+
     public enum FilterFieldType
     {
         Select,
